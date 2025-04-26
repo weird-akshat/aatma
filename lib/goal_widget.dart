@@ -1,0 +1,55 @@
+import 'package:aatma/treenode.dart';
+import 'package:flutter/material.dart';
+import 'package:getwidget/components/list_tile/gf_list_tile.dart';
+
+//Goal class will have a treeNode,
+class GoalWidget extends StatefulWidget {
+  final TreeNode treeNode;
+  final Offset offset;
+  const GoalWidget({super.key, required this.offset, required this.treeNode});
+
+  @override
+  State<GoalWidget> createState() => _GoalState();
+}
+
+class _GoalState extends State<GoalWidget> {
+  late double left, top;
+  @override
+  void initState() {
+    super.initState();
+    left = widget.offset.dx;
+    top = widget.offset.dy;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+        left: left,
+        top: top,
+        child: GestureDetector(
+          onPanUpdate: (details) {
+            setState(() {
+              left += details.delta.dx;
+              top += details.delta.dy;
+            });
+          },
+          onPanEnd: (details) {
+            setState(() {
+              left = widget.offset.dx;
+              top = widget.offset.dy;
+            });
+          },
+          child: SizedBox(
+            width: 400,
+            height: 100,
+            child: GFListTile(
+                color: Colors.white,
+                subTitle: Text('data'),
+                titleText: 'Title',
+                subTitleText:
+                    'Lorem ipsum dolor sit amet, consectetur adipiscing',
+                icon: Icon(Icons.favorite)),
+          ),
+        ));
+  }
+}
