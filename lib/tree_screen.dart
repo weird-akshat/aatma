@@ -16,17 +16,27 @@ class _TreeScreenState extends State<TreeScreen> {
   TreeNode node2 = TreeNode();
   TreeNode node3 = TreeNode();
   TreeNode node4 = TreeNode();
+  TreeNode node5 = TreeNode();
+  TreeNode node6 = TreeNode();
+  TreeNode node7 = TreeNode();
+  TreeNode node8 = TreeNode();
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     node1.addChildren([node2, node3]);
-    node3.addChild(node4);
+    node3.addChildren([node4, node5]);
+    node2.addChild(node6);
+    node2.addChild(node7);
+    // node2.addChild(node7);
+    node7.addChild(node8);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: GraphView(root: node1));
+    return Scaffold(
+      body: GraphView(root: node1),
+      // backgroundColor: Colors.black,
+    );
   }
 }

@@ -12,6 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: TreeScreen(),
+      theme: ThemeData.dark(),
       // theme: ThemeData.dark().copyWith(
       // scaffoldBackgroundColor: const Color.fromARGB(255, 46, 45, 45)),
     );

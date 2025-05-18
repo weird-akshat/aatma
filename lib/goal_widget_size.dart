@@ -1,0 +1,2 @@
+double GOAL_WIDGET_HEIGHT = 60;
+const double GOAL_WIDGET_WIDTH = 180;

@@ -1,5 +1,9 @@
+import 'dart:math';
+
 import 'package:aatma/edge_widget.dart';
 import 'package:aatma/goal_widget.dart';
+import 'package:aatma/goal_widget_size.dart';
+import 'package:aatma/stack_size.dart';
 import 'package:aatma/treenode.dart';
 import 'package:flutter/material.dart';
 
@@ -13,22 +17,58 @@ class GraphView extends StatefulWidget {
 }
 
 class _GraphViewState extends State<GraphView> {
-  List<Widget> graph = [];
+  List<Widget> goals = [];
+  List<Widget> edges = [];
   late Map<TreeNode, Offset> positions;
+
+  double findTreeWidth(Map<TreeNode, Offset> map) {
+    double max = 0;
+    double min = double.maxFinite;
+
+    for (var entry in map.entries) {
+      if (entry.value.dx > max) {
+        max = entry.value.dx;
+      } else if (entry.value.dx < min) {
+        min = entry.value.dx;
+      }
+    }
+    return max + GOAL_WIDGET_WIDTH;
+  }
+
+  int findTreeHeight(TreeNode node) {
+    if (node == null) {
+      return 0;
+    } else {
+      int max = 0;
+      for (TreeNode child in node.children) {
+        int x = findTreeHeight(child);
+        if (x > max) {
+          max = x;
+        }
+      }
+      return max + 1;
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     positions = tidyTreeLayout(widget.root);
+    stackWidth = findTreeWidth(positions) + 50;
+    stackHeight = (findTreeHeight(widget.root)) * levelSeparation + 50;
 
     dfs(widget.root);
   }
 
   void dfs(TreeNode node) {
-    graph.add(GoalWidget(offset: positions[node]!, treeNode: node));
+    goals.add(GoalWidget(offset: positions[node]!, treeNode: node));
 
     for (var child in node.children) {
-      graph.add(EdgeWidget(from: positions[node]!, to: positions[child]!));
+      edges.add(EdgeWidget(
+          from: positions[node]! +
+              Offset(GOAL_WIDGET_WIDTH / 2, GOAL_WIDGET_HEIGHT / 2),
+          to: positions[child]! +
+              Offset(GOAL_WIDGET_WIDTH / 2, GOAL_WIDGET_HEIGHT / 2)));
       dfs(child);
     }
   }
@@ -36,9 +76,15 @@ class _GraphViewState extends State<GraphView> {
   @override
   Widget build(BuildContext context) {
     return InteractiveViewer(
-      child: Stack(
-        children: graph,
-      ),
+      minScale: 0.05,
+      // boundaryMargin: const EdgeInsets.all(2000),
+
+      constrained: false,
+      scaleEnabled: true,
+      child: SizedBox(
+          width: stackWidth,
+          height: stackHeight,
+          child: Stack(children: edges + goals)),
     );
   }
 }
@@ -48,16 +94,12 @@ class _RTTNode {
   _RTTNode? parent, leftSibling, thread;
   List<_RTTNode> children = [];
   double prelim = 0, modifier = 0;
+  double? x, y; // Final positions
   _RTTNode(this.treeNode);
 }
 
 // Tree layout function
-Map<TreeNode, Offset> tidyTreeLayout(
-  TreeNode root, {
-  double siblingSeparation = 1000,
-  double subtreeSeparation = 300,
-  double levelSeparation = 500,
-}) {
+Map<TreeNode, Offset> tidyTreeLayout(TreeNode root) {
   _RTTNode build(TreeNode tn, _RTTNode? parent) {
     final n = _RTTNode(tn)..parent = parent;
     for (var c in tn.children) {
@@ -72,50 +114,104 @@ Map<TreeNode, Offset> tidyTreeLayout(
 
   final wrappedRoot = build(root, null);
 
-  // First pass: Assign preliminary positions to each node
-  void firstWalk(_RTTNode v, int depth) {
+  _RTTNode findRightmostDescendant(_RTTNode node, int depth) {
+    if (node.children.isEmpty) return node;
+    return findRightmostDescendant(node.children.last, depth + 1);
+  }
+
+  _RTTNode findLeftmostDescendant(_RTTNode node, int depth) {
+    if (node.children.isEmpty) return node;
+    return findLeftmostDescendant(node.children.first, depth + 1);
+  }
+
+  double calculateNodePosition(_RTTNode node) {
+    double position = node.prelim;
+    _RTTNode? current = node;
+    while (current != null && current != wrappedRoot) {
+      position += current.modifier;
+      current = current.parent;
+    }
+    return position;
+  }
+
+  void separateSubtrees(_RTTNode v, int depth) {
+    if (v.children.length <= 1) return;
+
+    for (int i = 1; i < v.children.length; i++) {
+      var child = v.children[i];
+      var leftSibling = v.children[i - 1];
+
+      var rightmostOfLeft = findRightmostDescendant(leftSibling, depth + 1);
+      var leftmostOfRight = findLeftmostDescendant(child, depth + 1);
+
+      double leftPos = calculateNodePosition(rightmostOfLeft);
+      double rightPos = calculateNodePosition(leftmostOfRight);
+
+      if (leftPos + siblingSeparation + subtreeSeparation > rightPos) {
+        double shift =
+            leftPos + siblingSeparation + subtreeSeparation - rightPos;
+        child.prelim += shift;
+        child.modifier += shift;
+
+        for (int k = i + 1; k < v.children.length; k++) {
+          v.children[k].prelim += shift;
+        }
+      }
+    }
+
+    for (var child in v.children) {
+      separateSubtrees(child, depth + 1);
+    }
+  }
+
+  void firstWalk(_RTTNode v) {
     if (v.children.isEmpty) {
-      // If a node has no children, set its position based on its left sibling
       v.prelim = (v.leftSibling != null)
           ? v.leftSibling!.prelim + siblingSeparation
           : 0;
     } else {
-      // If the node has children, recursively position them first
       for (var w in v.children) {
-        firstWalk(w, depth + 1);
+        firstWalk(w);
       }
 
-      // Calculate the middle position of the children for this node
-      final mid = (v.children.first.prelim + v.children.last.prelim) / 2;
+      final firstChild = v.children.first;
+      final lastChild = v.children.last;
+      final mid = (firstChild.prelim + lastChild.prelim) / 2;
 
-      // Adjust prelim position based on the left sibling, if it exists
-      if (v.leftSibling != null) {
-        v.prelim = v.leftSibling!.prelim + siblingSeparation;
-        v.modifier = v.prelim - mid; // Shift the node
-      } else {
-        v.prelim = mid;
-      }
+      v.prelim = mid;
+    }
+
+    if (v.children.isNotEmpty) {
+      separateSubtrees(v, 0);
     }
   }
 
-  Map<TreeNode, Offset> result = {};
-  // Second pass: Assign final positions to each node and propagate adjustments
   void secondWalk(_RTTNode v, double m, int depth) {
-    final x = v.prelim + m; // Final X position
-    final y = depth * levelSeparation; // Final Y position
+    final x = v.prelim + m;
+    final y = depth * levelSeparation;
 
-    result[v.treeNode] = Offset(x, y); // Store the calculated position
+    v.x = x;
+    v.y = y;
 
-    // Recursively apply secondWalk to the children
     for (var c in v.children) {
       secondWalk(c, m + v.modifier, depth + 1);
     }
   }
 
-  // Map<TreeNode, Offset> result = {}; // This will hold the final positions
-  firstWalk(wrappedRoot, 0); // Perform the first pass
-  secondWalk(wrappedRoot, 0,
-      0); // Perform the second pass with the corrected arguments
+  Map<TreeNode, Offset> result = {};
+  firstWalk(wrappedRoot);
+  separateSubtrees(wrappedRoot, 0);
+  secondWalk(wrappedRoot, 0, 0);
 
-  return result; // Return the final calculated positions
+  void extractPositions(_RTTNode v) {
+    if (v.x != null && v.y != null) {
+      result[v.treeNode] = Offset(v.x!, v.y!);
+    }
+    for (var c in v.children) {
+      extractPositions(c);
+    }
+  }
+
+  extractPositions(wrappedRoot);
+  return result;
 }

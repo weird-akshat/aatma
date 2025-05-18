@@ -24,13 +24,25 @@ class LinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint();
-    canvas.drawLine(p1, p2, paint);
+    Paint paint = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 10
+      ..style = PaintingStyle.stroke;
+
+    final path = Path()..moveTo(p1.dx, p1.dy);
+
+    // Midpoint with a slight curve (adjust the +/- to change curvature)
+    Offset controlPoint = Offset(
+      (p1.dx + p2.dx) / 2,
+      (p1.dy + p2.dy) / 2 + 160, // Curve upward; use +40 to curve downward
+    );
+
+    path.quadraticBezierTo(controlPoint.dx, controlPoint.dy, p2.dx, p2.dy);
+    canvas.drawPath(path, paint);
   }
 
   @override
   bool shouldRepaint(covariant LinePainter oldDelegate) {
-    // throw UnimplementedError();return start != oldDelegate.start ||
     return p1 != oldDelegate.p1 || p2 != oldDelegate.p2;
   }
 }

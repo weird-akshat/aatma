@@ -1,6 +1,7 @@
+import 'package:aatma/goal_widget_size.dart';
 import 'package:aatma/treenode.dart';
 import 'package:flutter/material.dart';
-import 'package:getwidget/components/list_tile/gf_list_tile.dart';
+// import 'package:getwidget/components/list_tile/gf_list_tile.dart';
 
 //Goal class will have a treeNode,
 class GoalWidget extends StatefulWidget {
@@ -39,17 +40,15 @@ class _GoalState extends State<GoalWidget> {
               top = widget.offset.dy;
             });
           },
-          child: SizedBox(
-            width: 400,
-            height: 100,
-            child: GFListTile(
-                color: Colors.white,
-                subTitle: Text('data'),
-                titleText: 'Title',
-                subTitleText:
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing',
-                icon: Icon(Icons.favorite)),
-          ),
+          child: Card(
+              color: Colors.white,
+              child: Container(
+                width: GOAL_WIDGET_WIDTH,
+                height: GOAL_WIDGET_HEIGHT,
+                child: Column(
+                  children: [Text("Goal Name")],
+                ),
+              )),
         ));
   }
 }
