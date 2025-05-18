@@ -54,6 +54,7 @@ class _GraphViewState extends State<GraphView> {
   void initState() {
     super.initState();
     positions = tidyTreeLayout(widget.root);
+    verifyPosition(positions);
     stackWidth = findTreeWidth(positions) + 50;
     stackHeight = (findTreeHeight(widget.root)) * levelSeparation + 50;
 
@@ -91,15 +92,56 @@ class _GraphViewState extends State<GraphView> {
 
 class _RTTNode {
   final TreeNode treeNode;
-  _RTTNode? parent, leftSibling, thread;
+  _RTTNode? parent, leftSibling;
   List<_RTTNode> children = [];
   double prelim = 0, modifier = 0;
   double? x, y; // Final positions
   _RTTNode(this.treeNode);
 }
 
-// Tree layout function
-Map<TreeNode, Offset> tidyTreeLayout(TreeNode root) {
+bool verifyPosition(Map<TreeNode, Offset> map) {
+  const double minSeparation = GOAL_WIDGET_WIDTH + 150;
+  bool changed = false;
+
+  // Group nodes by their vertical level (dy)
+  Map<double, List<MapEntry<TreeNode, Offset>>> levels = {};
+
+  for (var entry in map.entries) {
+    levels.putIfAbsent(entry.value.dy, () => []).add(entry);
+  }
+
+  final updated = Map<TreeNode, Offset>.from(map);
+
+  // For each vertical level
+  for (var entries in levels.values) {
+    entries.sort((a, b) => a.value.dx.compareTo(b.value.dx));
+
+    for (int i = 1; i < entries.length; i++) {
+      final prev = entries[i - 1];
+      final curr = entries[i];
+
+      double separation = curr.value.dx - updated[prev.key]!.dx;
+
+      if (separation < minSeparation) {
+        double shift = minSeparation - separation;
+        Offset newOffset = Offset(curr.value.dx + shift, curr.value.dy);
+        updated[curr.key] = newOffset;
+        changed = true;
+      }
+    }
+  }
+
+  map
+    ..clear()
+    ..addAll(updated);
+
+  return changed ? verifyPosition(map) : true;
+}
+
+Map<TreeNode, Offset> tidyTreeLayout(
+  TreeNode root, {
+  Offset rootPosition = const Offset(500, 50),
+}) {
   _RTTNode build(TreeNode tn, _RTTNode? parent) {
     final n = _RTTNode(tn)..parent = parent;
     for (var c in tn.children) {
@@ -113,105 +155,98 @@ Map<TreeNode, Offset> tidyTreeLayout(TreeNode root) {
   }
 
   final wrappedRoot = build(root, null);
-
-  _RTTNode findRightmostDescendant(_RTTNode node, int depth) {
-    if (node.children.isEmpty) return node;
-    return findRightmostDescendant(node.children.last, depth + 1);
+  void moveSubtree(_RTTNode node, double shift) {
+    node.prelim += shift;
+    node.modifier += shift;
   }
 
-  _RTTNode findLeftmostDescendant(_RTTNode node, int depth) {
-    if (node.children.isEmpty) return node;
-    return findLeftmostDescendant(node.children.first, depth + 1);
-  }
+  void apportion(_RTTNode v) {
+    final leftSibling = v.leftSibling!;
+    var vip = v;
+    var vim = leftSibling;
 
-  double calculateNodePosition(_RTTNode node) {
-    double position = node.prelim;
-    _RTTNode? current = node;
-    while (current != null && current != wrappedRoot) {
-      position += current.modifier;
-      current = current.parent;
-    }
-    return position;
-  }
+    var sip = vip.modifier;
+    var sim = vim.modifier;
 
-  void separateSubtrees(_RTTNode v, int depth) {
-    if (v.children.length <= 1) return;
+    var vipRight = vip.children.isNotEmpty ? vip.children.first : null;
+    var vimLeft = vim.children.isNotEmpty ? vim.children.last : null;
 
-    for (int i = 1; i < v.children.length; i++) {
-      var child = v.children[i];
-      var leftSibling = v.children[i - 1];
+    double shift = 0;
+    int level = 1;
 
-      var rightmostOfLeft = findRightmostDescendant(leftSibling, depth + 1);
-      var leftmostOfRight = findLeftmostDescendant(child, depth + 1);
-
-      double leftPos = calculateNodePosition(rightmostOfLeft);
-      double rightPos = calculateNodePosition(leftmostOfRight);
-
-      if (leftPos + siblingSeparation + subtreeSeparation > rightPos) {
-        double shift =
-            leftPos + siblingSeparation + subtreeSeparation - rightPos;
-        child.prelim += shift;
-        child.modifier += shift;
-
-        for (int k = i + 1; k < v.children.length; k++) {
-          v.children[k].prelim += shift;
-        }
+    while (vipRight != null && vimLeft != null) {
+      final diff = (vimLeft.prelim + sim) - (vipRight.prelim + sip);
+      if (diff + subtreeSeparation > 0) {
+        shift += diff + subtreeSeparation;
+        moveSubtree(v, shift);
+        sip += shift;
       }
-    }
 
-    for (var child in v.children) {
-      separateSubtrees(child, depth + 1);
+      vipRight = vipRight.children.isNotEmpty ? vipRight.children.first : null;
+      vimLeft = vimLeft.children.isNotEmpty ? vimLeft.children.last : null;
+      sip += vip.modifier;
+      sim += vim.modifier;
+
+      level++;
     }
   }
 
   void firstWalk(_RTTNode v) {
-    if (v.children.isEmpty) {
-      v.prelim = (v.leftSibling != null)
-          ? v.leftSibling!.prelim + siblingSeparation
-          : 0;
-    } else {
-      for (var w in v.children) {
-        firstWalk(w);
-      }
-
-      final firstChild = v.children.first;
-      final lastChild = v.children.last;
-      final mid = (firstChild.prelim + lastChild.prelim) / 2;
-
-      v.prelim = mid;
+    for (var c in v.children) {
+      firstWalk(c);
     }
 
-    if (v.children.isNotEmpty) {
-      separateSubtrees(v, 0);
+    if (v.children.isEmpty) {
+      v.prelim = v.leftSibling == null
+          ? 0
+          : v.leftSibling!.prelim + GOAL_WIDGET_WIDTH + siblingSeparation;
+    } else if (v.children.length == 1) {
+      final child = v.children.first;
+      v.prelim = child.prelim;
+    } else {
+      final first = v.children.first;
+      final last = v.children.last;
+      v.prelim = (first.prelim + last.prelim) / 2;
+    }
+
+    if (v.leftSibling != null) {
+      apportion(v);
     }
   }
 
-  void secondWalk(_RTTNode v, double m, int depth) {
-    final x = v.prelim + m;
-    final y = depth * levelSeparation;
+  void secondWalk(_RTTNode v, double modSum, int depth, double xOffset) {
+    final x = v.prelim + modSum + xOffset - GOAL_WIDGET_WIDTH / 2;
+    final y = rootPosition.dy + levelSeparation * depth;
 
     v.x = x;
     v.y = y;
 
     for (var c in v.children) {
-      secondWalk(c, m + v.modifier, depth + 1);
+      secondWalk(c, modSum + v.modifier, depth + 1, xOffset);
     }
   }
 
-  Map<TreeNode, Offset> result = {};
-  firstWalk(wrappedRoot);
-  separateSubtrees(wrappedRoot, 0);
-  secondWalk(wrappedRoot, 0, 0);
-
-  void extractPositions(_RTTNode v) {
-    if (v.x != null && v.y != null) {
-      result[v.treeNode] = Offset(v.x!, v.y!);
-    }
+  double findMinX(_RTTNode v, double modSum) {
+    double minX = v.prelim + modSum;
     for (var c in v.children) {
-      extractPositions(c);
+      minX = min(minX, findMinX(c, modSum + v.modifier));
     }
+    return minX;
   }
 
-  extractPositions(wrappedRoot);
+  // Run layout
+  firstWalk(wrappedRoot);
+  final minX = findMinX(wrappedRoot, 0);
+  final xOffset = rootPosition.dx - minX;
+  secondWalk(wrappedRoot, 0, 0, xOffset);
+
+  // Collect results
+  final Map<TreeNode, Offset> result = {};
+  void collect(_RTTNode v) {
+    result[v.treeNode] = Offset(v.x!, v.y!);
+    for (var c in v.children) collect(c);
+  }
+
+  collect(wrappedRoot);
   return result;
 }
