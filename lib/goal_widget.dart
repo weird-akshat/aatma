@@ -1,4 +1,5 @@
 import 'package:aatma/goal_widget_size.dart';
+import 'package:aatma/configuration.dart';
 import 'package:aatma/treenode.dart';
 import 'package:flutter/material.dart';
 // import 'package:getwidget/components/list_tile/gf_list_tile.dart';

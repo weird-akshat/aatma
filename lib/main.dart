@@ -1,7 +1,13 @@
+import 'package:aatma/configuration.dart';
+// import 'package:aatma/goal_hierarchy_page.dart';
+
+import 'package:aatma/goal_screen.dart';
 import 'package:aatma/tree_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main(List<String> args) {
+  initConfig();
   runApp(MyApp());
 }
 
@@ -10,9 +16,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 2(); // Important
+
     return MaterialApp(
-      home: TreeScreen(),
-      theme: ThemeData.dark(),
+      home: GoalScreen(),
+      theme: ThemeData.light().copyWith(
+        textTheme: GoogleFonts.latoTextTheme(),
+      ),
       // theme: ThemeData.dark().copyWith(
       // scaffoldBackgroundColor: const Color.fromARGB(255, 46, 45, 45)),
     );

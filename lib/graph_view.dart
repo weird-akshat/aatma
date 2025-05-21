@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:aatma/edge_widget.dart';
 import 'package:aatma/goal_widget.dart';
 import 'package:aatma/goal_widget_size.dart';
-import 'package:aatma/stack_size.dart';
+import 'package:aatma/configuration.dart';
 import 'package:aatma/treenode.dart';
 import 'package:flutter/material.dart';
 
@@ -20,6 +20,7 @@ class _GraphViewState extends State<GraphView> {
   List<Widget> goals = [];
   List<Widget> edges = [];
   late Map<TreeNode, Offset> positions;
+  final _transformationController = TransformationController();
 
   double findTreeWidth(Map<TreeNode, Offset> map) {
     double max = 0;
@@ -53,12 +54,28 @@ class _GraphViewState extends State<GraphView> {
   @override
   void initState() {
     super.initState();
-    positions = tidyTreeLayout(widget.root);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    positions = tidyTreeLayout(widget.root,
+        rootPosition: Offset(MediaQuery.of(context).size.width / 2, 0));
     verifyPosition(positions);
-    stackWidth = findTreeWidth(positions) + 50;
-    stackHeight = (findTreeHeight(widget.root)) * levelSeparation + 50;
+    stackWidth = findTreeWidth(positions) + GOAL_WIDGET_WIDTH;
+    stackHeight = (findTreeHeight(widget.root)) * levelSeparation;
 
     dfs(widget.root);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final rootPos = positions[widget.root]!;
+      final screenSize = MediaQuery.of(context).size;
+
+// Center the root node on the screen
+      final dx = screenSize.width / 2 - (rootPos.dx + GOAL_WIDGET_WIDTH / 2);
+      final dy = 20.0; // Optional vertical padding from top
+
+      _transformationController.value = Matrix4.identity()..translate(dx, dy);
+    });
   }
 
   void dfs(TreeNode node) {
@@ -76,16 +93,33 @@ class _GraphViewState extends State<GraphView> {
 
   @override
   Widget build(BuildContext context) {
-    return InteractiveViewer(
-      minScale: 0.05,
-      // boundaryMargin: const EdgeInsets.all(2000),
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            "Goal Hierarchy",
+            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
+        ),
+        body: InteractiveViewer(
+          transformationController: _transformationController,
+          minScale: 0.0005,
 
-      constrained: false,
-      scaleEnabled: true,
-      child: SizedBox(
-          width: stackWidth,
-          height: stackHeight,
-          child: Stack(children: edges + goals)),
+          maxScale: 10,
+          // boundaryMargin: const EdgeInsets.all(2000),
+
+          constrained: false,
+          scaleEnabled: true,
+          child: Align(
+            alignment: Alignment.center,
+            child: SizedBox(
+                width: stackWidth,
+                height: stackHeight,
+                child: Stack(children: edges + goals)),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -100,7 +134,7 @@ class _RTTNode {
 }
 
 bool verifyPosition(Map<TreeNode, Offset> map) {
-  const double minSeparation = GOAL_WIDGET_WIDTH + 150;
+  double minSeparation = GOAL_WIDGET_WIDTH + 150;
   bool changed = false;
 
   // Group nodes by their vertical level (dy)
@@ -140,7 +174,7 @@ bool verifyPosition(Map<TreeNode, Offset> map) {
 
 Map<TreeNode, Offset> tidyTreeLayout(
   TreeNode root, {
-  Offset rootPosition = const Offset(500, 50),
+  required Offset rootPosition,
 }) {
   _RTTNode build(TreeNode tn, _RTTNode? parent) {
     final n = _RTTNode(tn)..parent = parent;

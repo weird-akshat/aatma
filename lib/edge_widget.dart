@@ -1,3 +1,4 @@
+import 'package:aatma/configuration.dart';
 import 'package:flutter/material.dart';
 
 //takes offset from and to to draw the lines
@@ -26,7 +27,7 @@ class LinePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()
       ..color = Colors.white
-      ..strokeWidth = 10
+      ..strokeWidth = edgeStrokeWidth
       ..style = PaintingStyle.stroke;
 
     final path = Path()..moveTo(p1.dx, p1.dy);

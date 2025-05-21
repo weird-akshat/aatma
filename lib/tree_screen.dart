@@ -22,6 +22,9 @@ class _TreeScreenState extends State<TreeScreen> {
   TreeNode node8 = TreeNode();
   TreeNode node9 = TreeNode();
   TreeNode node10 = TreeNode();
+  TreeNode node11 = TreeNode();
+  TreeNode node12 = TreeNode();
+  TreeNode node13 = TreeNode();
 
   @override
   void initState() {
@@ -33,6 +36,8 @@ class _TreeScreenState extends State<TreeScreen> {
     // Level 2
     node2.addChildren([node4, node5]);
     node3.addChildren([node6]);
+
+    node3.addChildren([node11, node12, node12]);
 
     // Level 3
     node4.addChildren([node7]);

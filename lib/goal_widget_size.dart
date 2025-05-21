@@ -1,2 +1,1 @@
-double GOAL_WIDGET_HEIGHT = 50;
-const double GOAL_WIDGET_WIDTH = 100;
+
