@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
     // 2(); // Important
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: GoalScreen(),
       theme: ThemeData.light().copyWith(
         textTheme: GoogleFonts.latoTextTheme(),
