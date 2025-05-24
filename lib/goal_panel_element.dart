@@ -27,17 +27,19 @@ class _GoalPanelElementState extends State<GoalPanelElement> {
       onExit: (_) => setState(() => isHovered = false),
       child: Container(
         decoration: BoxDecoration(
-            color: isHovered
-                ? goalPanelElementColorSelected
-                : goalPanelElementColor,
-            borderRadius: isHovered
-                ? BorderRadius.all(Radius.circular(5))
-                : BorderRadius.all(Radius.circular(20))),
+          // color: isHovered
+          // ? goalPanelElementColorSelected
+          color: goalPanelElementColor,
+          // borderRadius: isHovered
+          // ? BorderRadius.all(Radius.circular(5))
+          // : BorderRadius.all(Radius.circular(20))),
+        ),
         height: widget.height,
         width: widget.width,
         child: Material(
           elevation: 30,
-          color: goalPanelElementColor,
+          color:
+              isHovered ? goalPanelElementColorSelected : goalPanelElementColor,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -46,17 +48,20 @@ class _GoalPanelElementState extends State<GoalPanelElement> {
               children: [
                 Icon(
                   widget.icon,
-                  color: goalPanelTextColor,
+                  color: isHovered
+                      ? goalPanelTextColorSelected
+                      : goalPanelTextColor,
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20.0, 0, 20.0, 0),
-                  child: Text(
-                    widget.text,
-                    style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.height * .0225,
+                  child: Text(widget.text,
+                      style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height * .0125,
                         fontWeight: FontWeight.bold,
-                        color: goalPanelTextColor),
-                  ),
+                        color: isHovered
+                            ? goalPanelTextColorSelected
+                            : goalPanelTextColor,
+                      )),
                 ),
               ],
             ),

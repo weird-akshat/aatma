@@ -16,31 +16,32 @@ class _GoalScreenState extends State<GoalScreen> {
     final screen = MediaQuery.of(context).size;
 
     return Scaffold(
+      backgroundColor: goalScreenColor,
       // backgroundColor: const Color.fromARGB(255, 16, 34, 49),
       body: Stack(children: [
-        Positioned.fill(
-            left: screen.width * .5,
-            top: 0,
-            bottom: screen.height * .2,
-            right: screen.width * 0,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius:
-                    BorderRadius.only(bottomLeft: Radius.circular(50)),
-                color: goalScreenColor,
-              ),
-            )),
-        Positioned.fill(
-            left: 0,
-            top: screen.height * 0,
-            bottom: 0,
-            right: screen.width * .95,
-            child: Container(
-              decoration: BoxDecoration(
-                // borderRadius: BorderRadius.only(topRight: Radius.circular(50)),
-                color: goalScreenColor,
-              ),
-            )),
+        // Positioned.fill(
+        //     left: screen.width * .5,
+        //     top: 0,
+        //     bottom: screen.height * .2,
+        //     right: screen.width * 0,
+        //     child: Container(
+        //       decoration: BoxDecoration(
+        //         borderRadius:
+        //             BorderRadius.only(bottomLeft: Radius.circular(50)),
+        //         color: goalScreenColor,
+        //       ),
+        //     )),
+        // Positioned.fill(
+        //     left: 0,
+        //     top: screen.height * 0,
+        //     bottom: 0,
+        //     right: screen.width * .95,
+        //     child: Container(
+        //       decoration: BoxDecoration(
+        //         // borderRadius: BorderRadius.only(topRight: Radius.circular(50)),
+        //         color: goalScreenColor,
+        //       ),
+        //     )),
         MainPanel(screen: screen)
       ]),
     );

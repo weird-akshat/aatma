@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: GoalScreen(),
       theme: ThemeData.light().copyWith(
-        textTheme: GoogleFonts.latoTextTheme(),
+        textTheme: GoogleFonts.interTextTheme(),
       ),
       // theme: ThemeData.dark().copyWith(
       // scaffoldBackgroundColor: const Color.fromARGB(255, 46, 45, 45)),

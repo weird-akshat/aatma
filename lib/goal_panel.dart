@@ -1,5 +1,6 @@
 import 'package:aatma/color_configuration.dart';
 import 'package:aatma/goal_panel_element.dart';
+import 'package:aatma/goal_panel_heading.dart';
 import 'package:flutter/material.dart';
 
 class GoalPanel extends StatelessWidget {
@@ -13,60 +14,69 @@ class GoalPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double div = 13;
     return Container(
       decoration: BoxDecoration(
-          color: goalPanelColor,
-          borderRadius: BorderRadius.all(Radius.circular(10))),
+        color: goalPanelColor,
+        // borderRadius: BorderRadius.all(
+        // Radius.circular(10),
+        // ),
+      ),
       height: height,
       width: width,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
+      child: Expanded(
         child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                // SizedBox(
-                //   height: 30,
-                // ),
-                GoalPanelElement(
-                  width: width,
-                  height: height / 10,
-                  icon: Icons.flag,
-                  text: "Report",
-                ),
-                GoalPanelElement(
-                  width: width,
-                  height: height / 10,
-                  icon: Icons.description,
-                  text: "Description",
-                ),
-                GoalPanelElement(
-                  width: width,
-                  height: height / 10,
-                  icon: Icons.note,
-                  text: "Plan",
-                ),
-                GoalPanelElement(
-                  width: width,
-                  height: height / 10,
-                  icon: Icons.book,
-                  text: "Journal",
-                ),
-                GoalPanelElement(
-                  width: width,
-                  height: height / 10,
-                  icon: Icons.error,
-                  text: "Problems",
-                ),
-                GoalPanelElement(
-                  width: width,
-                  height: height / 10,
-                  icon: Icons.track_changes,
-                  text: "Manage Goal",
-                ),
-              ],
-            ),
+          scrollDirection: Axis.vertical,
+          child: Column(
+            children: [
+              GoalPanelHeading(
+                  icon: Icons.task,
+                  text: "Goal Panel",
+                  height: height / div * 1.25,
+                  width: width),
+              Divider(
+                color: Colors.white,
+              ),
+              GoalPanelElement(
+                width: width,
+                height: height / div,
+                icon: Icons.flag,
+                text: "Report",
+              ),
+              GoalPanelElement(
+                width: width,
+                height: height / div,
+                icon: Icons.description,
+                text: "Description",
+              ),
+              GoalPanelElement(
+                width: width,
+                height: height / div,
+                icon: Icons.note,
+                text: "Plan",
+              ),
+              GoalPanelElement(
+                width: width,
+                height: height / div,
+                icon: Icons.book,
+                text: "Journal",
+              ),
+              GoalPanelElement(
+                width: width,
+                height: height / div,
+                icon: Icons.error,
+                text: "Problems",
+              ),
+              GoalPanelElement(
+                width: width,
+                height: height / div,
+                icon: Icons.track_changes,
+                text: "Manage Goal",
+              ),
+              Divider(
+                color: Colors.white,
+              ),
+            ],
           ),
         ),
       ),

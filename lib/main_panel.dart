@@ -17,13 +17,13 @@ class MainPanel extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Card(
+          Material(
             elevation: 40,
             // color: Colors.white,
-            color: mainPaneColor,
+            color: mainPanelColor,
             child: SizedBox(
               // padding: EdgeInsets.all(100),
-              width: screen.width * .8,
+              width: screen.width * .7,
               height: screen.height * .8,
 
               child: Expanded(
@@ -32,7 +32,7 @@ class MainPanel extends StatelessWidget {
                     children: [
                       GoalPanel(
                         height: constraints.maxHeight,
-                        width: constraints.maxWidth / 5,
+                        width: constraints.maxWidth / 6,
                       ),
                       // Text('data')
                       ReportPanel()
