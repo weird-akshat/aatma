@@ -32,7 +32,7 @@ class _GoalPanelElementState extends State<GoalPanelElement> {
           color: goalPanelElementColor,
           // borderRadius: isHovered
           // ? BorderRadius.all(Radius.circular(5))
-          // : BorderRadius.all(Radius.circular(20))),
+          borderRadius: BorderRadius.all(Radius.circular(20)),
         ),
         height: widget.height,
         width: widget.width,
@@ -57,7 +57,7 @@ class _GoalPanelElementState extends State<GoalPanelElement> {
                   child: Text(widget.text,
                       style: TextStyle(
                         fontSize: MediaQuery.of(context).size.height * .0125,
-                        fontWeight: FontWeight.bold,
+                        // fontWeight: FontWeight.bold,
                         color: isHovered
                             ? goalPanelTextColorSelected
                             : goalPanelTextColor,

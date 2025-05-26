@@ -18,6 +18,7 @@ class MainPanel extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Material(
+            borderRadius: BorderRadius.circular(10),
             elevation: 40,
             // color: Colors.white,
             color: mainPanelColor,
@@ -32,7 +33,7 @@ class MainPanel extends StatelessWidget {
                     children: [
                       GoalPanel(
                         height: constraints.maxHeight,
-                        width: constraints.maxWidth / 6,
+                        width: constraints.maxWidth / 7,
                       ),
                       // Text('data')
                       ReportPanel()

@@ -14,13 +14,14 @@ class GoalPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double div = 13;
+    double div = 16;
     return Container(
       decoration: BoxDecoration(
         color: goalPanelColor,
-        // borderRadius: BorderRadius.all(
-        // Radius.circular(10),
-        // ),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10),
+          bottomLeft: Radius.circular(10),
+        ),
       ),
       height: height,
       width: width,
