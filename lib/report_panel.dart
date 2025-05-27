@@ -29,7 +29,7 @@ class ReportPanel extends StatelessWidget {
                 style: TextStyle(
                     color: goalPanelColor,
                     fontSize: MediaQuery.of(context).size.height * .03,
-                    fontWeight: FontWeight.w900),
+                    fontWeight: FontWeight.bold),
               ),
             ),
             Center(
@@ -81,45 +81,53 @@ class ReportPanel extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Card(
-                          child: SizedBox(
-                            width: constraints.maxWidth * .4,
-                            height: constraints.maxHeight,
-                            child: SfCircularChart(
-                              legend: Legend(isVisible: true),
-                              series: [
-                                PieSeries<ChartData, String>(
-                                  dataSource: chartData,
-                                  pointColorMapper: (ChartData data, _) =>
-                                      data.color,
-                                  xValueMapper: (ChartData data, _) => data.x,
-                                  yValueMapper: (ChartData data, _) => data.y,
-                                  explode: true,
-                                  explodeGesture: ActivationMode.singleTap,
-                                  // explodeIndex: 1,
-                                )
-                              ],
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Card(
+                            child: SizedBox(
+                              width: constraints.maxWidth * .4,
+                              height: constraints.maxHeight,
+                              child: SfCircularChart(
+                                legend: Legend(isVisible: true),
+                                series: [
+                                  DoughnutSeries<ChartData, String>(
+                                    innerRadius: '70%',
+                                    strokeWidth: 0,
+                                    dataSource: chartData,
+                                    pointColorMapper: (ChartData data, _) =>
+                                        data.color,
+                                    xValueMapper: (ChartData data, _) => data.x,
+                                    yValueMapper: (ChartData data, _) => data.y,
+                                    explode: true,
+                                    explodeGesture: ActivationMode.singleTap,
+                                    // explodeIndex: 1,
+                                  )
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                        Card(
-                          child: SizedBox(
-                            width: constraints.maxWidth * .4,
-                            height: constraints.maxHeight,
-                            child: SfCartesianChart(
-                              primaryXAxis: CategoryAxis(),
-                              series: [
-                                StackedLineSeries<ChartData, String>(
-                                  dataSource: chartData,
-                                  pointColorMapper: (ChartData data, _) =>
-                                      data.color,
-                                  xValueMapper: (ChartData data, _) => data.x,
-                                  yValueMapper: (ChartData data, _) => data.y,
-                                  // explode: true,
-                                  // explodeGesture: ActivationMode.singleTap,
-                                  // explodeIndex: 1,
-                                )
-                              ],
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Card(
+                            child: SizedBox(
+                              width: constraints.maxWidth * .4,
+                              height: constraints.maxHeight,
+                              child: SfCartesianChart(
+                                primaryXAxis: CategoryAxis(),
+                                series: [
+                                  StackedLineSeries<ChartData, String>(
+                                    dataSource: chartData,
+                                    pointColorMapper: (ChartData data, _) =>
+                                        data.color,
+                                    xValueMapper: (ChartData data, _) => data.x,
+                                    yValueMapper: (ChartData data, _) => data.y,
+                                    // explode: true,
+                                    // explodeGesture: ActivationMode.singleTap,
+                                    // explodeIndex: 1,
+                                  )
+                                ],
+                              ),
                             ),
                           ),
                         )
@@ -130,81 +138,21 @@ class ReportPanel extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) => Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Material(
-                      borderRadius: BorderRadius.circular(20),
-                      elevation: 8,
-                      shadowColor: Colors.black.withOpacity(0.2),
-                      child: Container(
-                        height: constraints.maxHeight,
-                        width: constraints.maxWidth * 0.4,
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Colors.white,
-                              Colors.grey.shade50,
-                            ],
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _buildTimeStatRow(
-                              "Time spent today:",
-                              "2h 30m",
-                              constraints.maxHeight * 0.08,
-                              FontWeight.bold,
-                              Colors.blue.shade700,
-                            ),
-                            _buildTimeStatRow(
-                              "Time spent this week:",
-                              "12h 45m",
-                              constraints.maxHeight * 0.06,
-                              FontWeight.w600,
-                              Colors.green.shade700,
-                            ),
-                            _buildTimeStatRow(
-                              "Time spent this month:",
-                              "45h 20m",
-                              constraints.maxHeight * 0.05,
-                              FontWeight.w500,
-                              Colors.orange.shade700,
-                            ),
-                            _buildTimeStatRow(
-                              "Time spent this year:",
-                              "320h 15m",
-                              constraints.maxHeight * 0.05,
-                              FontWeight.w500,
-                              Colors.purple.shade700,
-                            ),
-                            _buildTimeStatRow(
-                              "Total time spent:",
-                              "1,250h 30m",
-                              constraints.maxHeight * 0.05,
-                              FontWeight.w600,
-                              Colors.red.shade700,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // SizedBox(height: 50, child: TodoListWidget())
-                    // _buildTasksCard(context)
-                    // Text('data'),
-                    // StatelessTodoShowpiece()
-                  ],
-                ),
+                child: LayoutBuilder(
+              builder: (context, constraints) => Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  TimeSpentCard(
+                    height: constraints.maxHeight,
+                    width: constraints.maxWidth * .4,
+                  ),
+                  TimeSpentCard(
+                    height: constraints.maxHeight,
+                    width: constraints.maxWidth * .4,
+                  ),
+                ],
               ),
-            ),
-
+            ))
             // Expanded(
             //   child: Row(
             //     children: [Placeholder(), Placeholder()],
@@ -217,43 +165,95 @@ class ReportPanel extends StatelessWidget {
   }
 }
 
-// / Helper method to build consistent time stat rows
-Widget _buildTimeStatRow(
-  String label,
-  String value,
-  double fontSize,
-  FontWeight fontWeight,
-  Color color,
-) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 4),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          flex: 3,
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: fontSize,
-              fontWeight: fontWeight,
-              color: Colors.grey.shade700,
-            ),
+class TimeSpentCard extends StatelessWidget {
+  const TimeSpentCard({super.key, required this.height, required this.width});
+
+  final double height;
+  final double width;
+
+  @override
+  Widget build(BuildContext context) {
+    double mul = .05;
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Material(
+        elevation: 10,
+        borderRadius: BorderRadius.circular(10),
+        child: SizedBox(
+          height: height,
+          width: width,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              TimeSpentRow(
+                iconData: Icons.today,
+                text: 'Time spent today',
+                timespent: '3 hours 45 minutes',
+                color: const Color.fromARGB(255, 12, 35, 54),
+                fontSize: height * mul,
+              ),
+              TimeSpentRow(
+                iconData: Icons.today,
+                text: 'Time spent this week',
+                timespent: '3 hours 45 minutes',
+                color: const Color.fromARGB(255, 12, 35, 54),
+                fontSize: height * mul,
+              ),
+              TimeSpentRow(
+                iconData: Icons.today,
+                text: 'Time spent this year',
+                timespent: '3 hours 45 minutes',
+                color: const Color.fromARGB(255, 12, 35, 54),
+                fontSize: height * mul,
+              ),
+              TimeSpentRow(
+                iconData: Icons.today,
+                text: 'Total time spent',
+                timespent: '3 hours 45 minutes',
+                color: const Color.fromARGB(255, 12, 35, 54),
+                fontSize: height * mul,
+              ),
+            ],
           ),
         ),
-        Expanded(
-          flex: 2,
-          child: Text(
-            value,
-            style: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-            textAlign: TextAlign.end,
+      ),
+    );
+  }
+}
+
+class TimeSpentRow extends StatelessWidget {
+  const TimeSpentRow({
+    super.key,
+    required this.iconData,
+    required this.text,
+    required this.timespent,
+    required this.color,
+    required this.fontSize,
+  });
+
+  final IconData iconData;
+  final String text;
+  final String timespent;
+  final Color color;
+  final double fontSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Icon(iconData),
+          Text(
+            "$text : ",
+            style: TextStyle(color: color, fontSize: fontSize),
           ),
-        ),
-      ],
-    ),
-  );
+          Text(
+            timespent,
+            style: TextStyle(color: color, fontSize: fontSize),
+          )
+        ],
+      ),
+    );
+  }
 }
